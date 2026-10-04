@@ -1,0 +1,4 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, flashes %}
+{% block content %}<div class="authwrap"><div class="card authcard"><h2>Neues Passwort / Новый пароль</h2>{{ flashes() }}
+<form method="post">{{ csrf() }}<div class="field"><label>Passwort (min. 12)</label><input type="password" name="password" required minlength="12" autofocus autocomplete="new-password"></div><button class="btn block">OK</button></form></div></div>{% endblock %}

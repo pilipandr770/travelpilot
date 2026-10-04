@@ -1,0 +1,9 @@
+<article class="card offer" id="offer-{{ o.id }}">
+  <h3>{{ o.title }}</h3>
+  <div class="meta">{% if o.destination %}{{ o.destination }}{% endif %}{% if o.nights %} · {{ o.nights }} {{ t('s.nights') }}{% endif %}{% if o.departure_from %} · {{ o.departure_from }}{% endif %}</div>
+  {% if o.price_from is not none %}<div class="price">{{ t('s.from') }} {{ '{:,.0f}'.format(o.price_from).replace(',', ' ') }} {{ o.currency }} <span class="meta">{{ o.price_note }}</span></div>{% endif %}
+  {% if o.description %}<p>{{ o.description[:220] }}{% if o.description|length > 220 %}…{% endif %}</p>{% endif %}
+  <div class="meta">{% if o.operator_name %}{{ t('s.operator') }}: {{ o.operator_name }}<br>{% endif %}{% if o.valid_until %}{{ t('s.valid_until') }} {{ o.valid_until.strftime('%d.%m.%Y') }}{% endif %}{% if o.last_verified_at %} · {{ t('s.checked') }} {{ o.last_verified_at.strftime('%d.%m.%Y') }}{% endif %}</div>
+  {% if o.includes %}<div class="small"><b>+</b> {{ o.includes[:160] }}</div>{% endif %}
+  {% if o.excludes %}<div class="small muted"><b>−</b> {{ o.excludes[:160] }}</div>{% endif %}
+</article>

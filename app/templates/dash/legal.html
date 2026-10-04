@@ -1,0 +1,32 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, post_btn %}
+{% block title %}{{ t('Юридические данные') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Юридические данные') }}</h1></div>
+<p class="muted">{{ t('Эти данные автоматически попадают в Impressum, Datenschutz и PDF-документы. Без них сайт не публикуется.') }}</p>
+{% if missing %}<div class="alert warn">{{ t('Не хватает') }}: {{ missing|join(', ') }}</div>{% endif %}
+<form method="post" class="card">{{ csrf() }}
+  <div class="grid g2">
+    {{ field('legal_name', 'Название юрлица / ИП', agency.legal_name, required=true, maxlength=160) }}
+    {{ field('legal_form', 'Правовая форма (UG, GmbH, Einzelunternehmen…)', agency.legal_form, maxlength=40) }}
+    {{ field('owner_name', 'Ответственное лицо (Vertretungsberechtigte/r)', agency.owner_name, maxlength=120) }}
+    {{ field('contact_email', 'Контактный e-mail', agency.contact_email, 'email', maxlength=254) }}
+    {{ field('street', 'Улица и дом', agency.street, maxlength=160) }}
+    {{ field('zip_code', 'Индекс', agency.zip_code, maxlength=20) }}
+    {{ field('city', 'Город', agency.city, maxlength=80) }}
+    {{ field('country', 'Страна (ISO, напр. DE)', agency.country, maxlength=2) }}
+    {{ field('phone', 'Телефон', agency.phone, maxlength=40) }}
+    {{ field('vat_id', 'USt-IdNr. (напр. DE123456789)', agency.vat_id, maxlength=30) }}
+    {{ field('tax_number', 'Налоговый номер (если нет USt-IdNr.)', agency.tax_number, maxlength=40) }}
+    {{ field('registry_info', 'Handelsregister / Registergericht (если есть)', agency.registry_info, maxlength=200) }}
+  </div>
+  {{ area('insurance_text', 'Страховка ответственности (страховщик, адрес, территория действия)', agency.insurance_text, 3, 'Для Reisevermittler: Vermögensschadenhaftpflicht.', 1000) }}
+  {{ area('terms_md', 'AGB агентства (Markdown)', agency.terms_md, 14, 'Ваши условия. Можно вставить шаблон ниже — но его обязательно должен проверить юрист.', 20000) }}
+  <details><summary>{{ t('Пример шаблона AGB (не юридическая консультация)') }}</summary><pre style="white-space:pre-wrap;font-size:.85rem">{{ terms_template }}</pre></details>
+  <div class="row" style="margin-top:1rem"><button class="btn">{{ t('Сохранить') }}</button></div>
+</form>
+<div class="card" style="margin-top:1rem"><h3>USt-IdNr.</h3>
+  <p class="muted small">{% if agency.vat_verified_at %}{{ t('Проверен в VIES') }}: {{ agency.vat_verified_at.strftime('%d.%m.%Y') }}{% else %}{{ t('Ещё не проверен.') }}{% endif %}</p>
+  {{ post_btn(url_for('dash.check_vat'), 'Проверить в VIES') }}
+</div>
+{% endblock %}

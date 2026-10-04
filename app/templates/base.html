@@ -1,0 +1,28 @@
+{% from "macros.html" import flashes %}
+<!doctype html>
+<html lang="{{ g.lang }}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}{{ cfg.PLATFORM_NAME }}{% endblock %}</title>
+<meta name="description" content="{% block desc %}{{ t('l.hero_sub') }}{% endblock %}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
+</head>
+<body>
+<header class="topbar"><div class="container">
+  <a class="logo" href="{{ url_for('platform.index') }}">Travel<span>Pilot</span></a>
+  <nav class="nav">
+    <a href="{{ url_for('platform.index') }}#features">{{ t('l.nav_features') }}</a>
+    <a href="{{ url_for('platform.index') }}#how">{{ t('l.nav_how') }}</a>
+    <a href="{{ url_for('platform.index') }}#pricing">{{ t('l.nav_pricing') }}</a>
+    <a href="{{ url_for('platform.index') }}#faq">{{ t('l.nav_faq') }}</a>
+    <span class="langs">{% for code in ['de','ru','en'] %}<a href="?lang={{ code }}" class="{{ 'on' if g.lang == code }}">{{ code.upper() }}</a>{% endfor %}</span>
+    {% if current_user.is_authenticated %}<a class="btn small" href="{{ url_for('dash.index') }}">Dashboard</a>{% else %}<a href="{{ url_for('auth.login') }}">{{ t('l.nav_login') }}</a><a class="btn small" href="{{ url_for('auth.register') }}">{{ t('l.nav_start') }}</a>{% endif %}
+  </nav>
+</div></header>
+<main>{% block content %}{% endblock %}</main>
+<footer class="pf"><div class="container">
+  <div>© {{ now_year }} {{ cfg.PLATFORM_NAME }}</div>
+  <div class="row"><a href="{{ url_for('platform.legal', page='impressum') }}">{{ t('l.footer_imprint') }}</a><a href="{{ url_for('platform.legal', page='datenschutz') }}">{{ t('l.footer_privacy') }}</a><a href="{{ url_for('platform.legal', page='agb') }}">{{ t('l.footer_terms') }}</a><a href="{{ url_for('platform.legal', page='avv') }}">AVV</a></div>
+</div></footer>
+</body></html>

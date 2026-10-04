@@ -1,0 +1,5 @@
+{% extends "site/base.html" %}
+{% block title %}{{ t('s.offers_title') }} – {{ agency.name }}{% endblock %}
+{% block content %}<section class="ssec"><div class="container"><h1>{{ t('s.offers_title') }}</h1>
+{% if offers %}<div class="grid g3">{% for o in offers %}{% include "site/_offer_card.html" %}{% endfor %}</div><p class="muted small" style="margin-top:1rem">{{ t('s.price_hint') }}</p>{% else %}<p class="muted">{{ t('s.offers_empty') }}</p>{% endif %}
+</div></section>{% endblock %}

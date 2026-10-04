@@ -1,0 +1,62 @@
+# Прод для хоста с общим Traefik (docker provider, certresolver с DNS-challenge).
+# Запуск: TRAEFIK_DOMAIN=travelpilot.example.com docker compose -f docker-compose.traefik.yml --env-file .env up -d --build
+# DNS: A <TRAEFIK_DOMAIN> и A *.<TRAEFIK_DOMAIN> -> IP сервера (в Cloudflare: DNS only).
+# Wildcard-сертификат (*.<TRAEFIK_DOMAIN>) выпускается резолвером с DNS-challenge (по умолчанию cfdns).
+# BASE_DOMAIN в .env должен совпадать с TRAEFIK_DOMAIN.
+name: travelpilot
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://travelpilot:${POSTGRES_PASSWORD}@db:5432/travelpilot
+      RATELIMIT_STORAGE_URI: redis://redis:6379/0
+      TRUSTED_PROXY_COUNT: "1"
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+    volumes: [uploads:/data/uploads]
+    command: ["web"]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: travelpilot_default
+      traefik.http.routers.travelpilot.entrypoints: websecure
+      traefik.http.routers.travelpilot.rule: Host(`${TRAEFIK_DOMAIN}`) || HostRegexp(`^[a-z0-9-]+\.${TRAEFIK_DOMAIN_RE}$$`)
+      traefik.http.routers.travelpilot.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-cfdns}
+      traefik.http.routers.travelpilot.tls.domains[0].main: ${TRAEFIK_DOMAIN}
+      traefik.http.routers.travelpilot.tls.domains[0].sans: "*.${TRAEFIK_DOMAIN}"
+      traefik.http.services.travelpilot.loadbalancer.server.port: "8000"
+
+  worker:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://travelpilot:${POSTGRES_PASSWORD}@db:5432/travelpilot
+    depends_on:
+      web: {condition: service_healthy}
+    volumes: [uploads:/data/uploads]
+    command: ["worker"]
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: travelpilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: travelpilot
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travelpilot"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:

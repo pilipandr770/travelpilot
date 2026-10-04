@@ -1,0 +1,41 @@
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro field(name, label, value='', type='text', help='', required=false, maxlength=none, placeholder='', step=none) %}
+<div class="field">
+  <label for="f-{{ name }}">{{ t(label) }}{% if required %} *{% endif %}</label>
+  <input id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ value if value is not none else '' }}"{% if required %} required{% endif %}{% if maxlength %} maxlength="{{ maxlength }}"{% endif %}{% if placeholder %} placeholder="{{ placeholder }}"{% endif %}{% if step %} step="{{ step }}"{% endif %}>
+  {% if help %}<div class="help">{{ t(help) }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro area(name, label, value='', rows=5, help='', maxlength=none) %}
+<div class="field">
+  <label for="f-{{ name }}">{{ t(label) }}</label>
+  <textarea id="f-{{ name }}" name="{{ name }}" rows="{{ rows }}"{% if maxlength %} maxlength="{{ maxlength }}"{% endif %}>{{ value if value is not none else '' }}</textarea>
+  {% if help %}<div class="help">{{ t(help) }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro select(name, label, options, value='', help='') %}
+<div class="field">
+  <label for="f-{{ name }}">{{ t(label) }}</label>
+  <select id="f-{{ name }}" name="{{ name }}">
+    {% for val, text in options %}<option value="{{ val }}"{% if val == value %} selected{% endif %}>{{ text }}</option>{% endfor %}
+  </select>
+  {% if help %}<div class="help">{{ t(help) }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro check(name, label, checked=false, help='') %}
+<div class="field">
+  <label class="check"><input type="checkbox" name="{{ name }}"{% if checked %} checked{% endif %}><span>{{ t(label) }}{% if help %}<span class="help" style="display:block">{{ t(help) }}</span>{% endif %}</span></label>
+</div>
+{% endmacro %}
+
+{% macro flashes() %}
+{% with messages = get_flashed_messages(with_categories=true) %}{% for cat, msg in messages %}<div class="alert {{ 'success' if cat == 'success' else 'error' if cat == 'error' else 'info' }}">{{ msg }}</div>{% endfor %}{% endwith %}
+{% endmacro %}
+
+{% macro post_btn(url, label, cls='btn small secondary', confirm='') %}
+<form method="post" action="{{ url }}" style="display:inline"{% if confirm %} data-confirm="{{ t(confirm) }}"{% endif %}>{{ csrf() }}<button class="{{ cls }}">{{ t(label) }}</button></form>
+{% endmacro %}

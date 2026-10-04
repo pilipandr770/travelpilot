@@ -1,0 +1,12 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf %}
+{% block title %}{{ t('Блог') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Блог') }}</h1><a class="btn secondary small" href="{{ url_for('dash.blog_settings') }}">{{ t('Настройки блога') }}</a></div>
+{% if agency.last_blog_error %}<div class="alert error">{{ t('Последняя автогенерация не удалась') }}: {{ agency.last_blog_error }}</div>{% endif %}
+{% if not has_key %}<div class="alert warn">{{ t('Для генерации нужен ключ Anthropic.') }} <a href="{{ url_for('dash.integrations') }}">{{ t('Интеграции') }}</a></div>{% endif %}
+<form method="post" action="{{ url_for('dash.blog_generate') }}" class="card row">{{ csrf() }}<input name="topic" maxlength="190" placeholder="{{ t('Тема (пусто — следующая из списка или RSS)') }}" style="flex:1;min-width:260px"><button class="btn">{{ t('Сгенерировать статью') }}</button></form>
+<div class="card" style="margin-top:1rem"><table><tr><th>{{ t('Заголовок') }}</th><th>{{ t('Статус') }}</th><th>{{ t('Дата') }}</th></tr>
+{% for p in posts %}<tr><td><a href="{{ url_for('dash.post_edit', post_id=p.id) }}">{{ p.title }}</a> {% if p.generated_by_ai %}<span class="badge">AI</span>{% endif %}</td><td><span class="badge {{ 'ok' if p.status == 'published' else 'warn' }}">{{ p.status }}</span></td><td>{{ p.created_at.strftime('%d.%m.%Y') }}</td></tr>
+{% else %}<tr><td colspan="3" class="muted">{{ t('Статей пока нет.') }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

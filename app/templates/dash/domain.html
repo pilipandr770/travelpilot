@@ -1,0 +1,18 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, post_btn %}
+{% block title %}{{ t('Домен') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Домен') }}</h1></div>
+<div class="card"><h3>{{ t('Адрес по умолчанию') }}</h3><p><code>{{ agency.site_url('/') if not agency.custom_domain_verified else (cfg.URL_SCHEME ~ '://' ~ agency.slug ~ '.' ~ cfg.BASE_DOMAIN) }}</code></p></div>
+<div class="card" style="margin-top:1rem"><h3>{{ t('Собственный домен') }}</h3>
+<form method="post" class="row">{{ csrf() }}<input name="domain" placeholder="reisen-mueller.de" value="{{ agency.custom_domain or '' }}" style="max-width:320px"><button class="btn small">{{ t('Сохранить') }}</button></form>
+{% if agency.custom_domain %}
+  <p class="muted small" style="margin-top:1rem">{{ t('Добавьте записи у регистратора домена:') }}</p>
+  <table><tr><th>{{ t('Тип') }}</th><th>{{ t('Имя') }}</th><th>{{ t('Значение') }}</th></tr>
+  <tr><td>CNAME / A</td><td>{{ agency.custom_domain }}</td><td><code>{{ target }}</code></td></tr>
+  <tr><td>TXT</td><td>_travelpilot-verify.{{ agency.custom_domain }}</td><td><code>{{ agency.domain_verify_token }}</code></td></tr></table>
+  <p class="help">{{ t('TXT-запись подтверждает, что домен ваш. Сертификат HTTPS выпускается автоматически после подтверждения.') }}</p>
+  <div class="row">{% if agency.custom_domain_verified %}<span class="badge ok">{{ t('подтверждён') }}</span>{% else %}{{ post_btn(url_for('dash.domain_verify'), 'Проверить', 'btn small') }}{% endif %}
+  {{ post_btn(url_for('dash.domain_remove'), 'Удалить домен', 'btn small danger', 'Удалить домен?') }}</div>
+{% endif %}</div>
+{% endblock %}

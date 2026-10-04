@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, flashes %}
+{% block title %}Login{% endblock %}
+{% block content %}<div class="authwrap"><div class="card authcard">
+<h2>Login</h2>{{ flashes() }}
+<form method="post">{{ csrf() }}
+  <div class="field"><label for="email">E-Mail</label><input id="email" type="email" name="email" required autofocus autocomplete="username"></div>
+  <div class="field"><label for="password">Passwort / Пароль</label><input id="password" type="password" name="password" required autocomplete="current-password"></div>
+  <button class="btn block">Login</button>
+</form>
+<p class="small muted" style="margin-top:1rem"><a href="{{ url_for('auth.forgot') }}">Passwort vergessen? / Забыли пароль?</a> · <a href="{{ url_for('auth.register') }}">{{ t('l.nav_start') }}</a></p>
+</div></div>{% endblock %}

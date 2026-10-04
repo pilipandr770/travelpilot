@@ -1,0 +1,65 @@
+# Прод: docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+# DNS: A-запись apex и wildcard *.BASE_DOMAIN -> IP сервера. Порты 80/443 открыты.
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      BASE_DOMAIN: ${BASE_DOMAIN}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [web]
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://travelpilot:${POSTGRES_PASSWORD}@db:5432/travelpilot
+      RATELIMIT_STORAGE_URI: redis://redis:6379/0
+      TRUSTED_PROXY_COUNT: "1"
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-3}
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_started}
+    volumes: [uploads:/data/uploads]
+    command: ["web"]
+
+  worker:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://travelpilot:${POSTGRES_PASSWORD}@db:5432/travelpilot
+    depends_on:
+      web: {condition: service_healthy}
+    volumes: [uploads:/data/uploads]
+    command: ["worker"]
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: travelpilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: travelpilot
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travelpilot"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:

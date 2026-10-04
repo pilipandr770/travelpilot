@@ -1,0 +1,26 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, post_btn %}
+{% block title %}{{ lead.name or t('Клиент') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ lead.name or t('Клиент') }}</h1><a class="btn secondary small" href="{{ url_for('dash.leads') }}">←</a></div>
+<div class="grid g2">
+<form method="post" class="card">{{ csrf() }}
+  {{ field('name', 'Имя', lead.name) }}{{ field('email', 'E-mail', lead.email, 'email') }}{{ field('phone', 'Телефон', lead.phone) }}
+  <div class="field"><label>{{ t('Статус') }}</label><select name="status">{% for s in LEAD_STATUSES %}<option value="{{ s }}" {{ 'selected' if s == lead.status }}>{{ s }}</option>{% endfor %}</select></div>
+  {{ area('notes', 'Заметки', lead.notes, 4) }}
+  <p class="small muted">{{ t('Источник') }}: {{ lead.source }} · {{ t('язык') }}: {{ lead.language or '—' }} · {{ t('согласие') }}: {{ lead.consent_at.strftime('%d.%m.%Y') if lead.consent_at else t('нет') }}</p>
+  {% if lead.message %}<div class="alert info small"><b>{{ t('Сообщение клиента') }}:</b><br>{{ lead.message }}</div>{% endif %}
+  <div class="row"><button class="btn">{{ t('Сохранить') }}</button></div>
+</form>
+<div>
+  <div class="card"><h3>{{ t('Брони') }}</h3>
+    {% for b in lead.bookings %}<p><a href="{{ url_for('dash.booking', booking_id=b.id) }}">#{{ b.id }} {{ b.title }}</a> <span class="badge">{{ b.status }}</span></p>{% else %}<p class="muted">{{ t('Пока нет.') }}</p>{% endfor %}
+    <form method="post" action="{{ url_for('dash.booking_new', lead_id=lead.id) }}" class="grid" style="margin-top:.8rem">{{ csrf() }}
+      <select name="offer_id"><option value="">— {{ t('без предложения (вручную)') }} —</option>{% for o in offers %}<option value="{{ o.id }}">{{ o.title }}</option>{% endfor %}</select>
+      <input name="title" placeholder="{{ t('Название поездки (если без предложения)') }}"><button class="btn small">{{ t('Создать бронь') }}</button></form>
+  </div>
+  {% for s in sessions %}<div class="card" style="margin-top:1rem"><h3>{{ t('Чат') }} · {{ s.created_at.strftime('%d.%m.%Y %H:%M') }}</h3><div class="transcript">{% for m in s.messages %}<p class="{{ 'u' if m.role == 'user' else 'a' }}"><b>{{ 'Клиент' if m.role == 'user' else 'Бот' }}:</b> {{ m.content }}</p>{% endfor %}</div></div>{% endfor %}
+  <div class="card" style="margin-top:1rem"><h3>{{ t('Удаление данных (DSGVO)') }}</h3><p class="muted small">{{ t('Удалит клиента, его чаты, брони и документы без возможности восстановления.') }}</p>
+  {{ post_btn(url_for('dash.lead_delete', lead_id=lead.id), 'Удалить клиента и данные', 'btn small danger', 'Удалить клиента и все связанные данные безвозвратно?') }}</div>
+</div></div>
+{% endblock %}

@@ -1,0 +1,33 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+dev.db
+uploads/
+.pytest_cache/
+*.zip
+
+# окружение и секреты (кроме примера)
+.env.*
+!.env.example
+*.pem
+*.key
+
+# базы и данные
+*.db
+*.sqlite3
+*.sqlite
+
+# логи, архивы, служебное
+*.log
+*.tgz
+*.tar.gz
+.claude/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.coverage
+htmlcov/
+*.egg-info/

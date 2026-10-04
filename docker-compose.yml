@@ -1,0 +1,40 @@
+# Локальная разработка: docker compose up --build
+# Платформа: http://localhost:8000   Сайты агентств: http://<slug>.localhost:8000 (*.localhost резолвится браузером в 127.0.0.1)
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: travelpilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-travelpilot}
+      POSTGRES_DB: travelpilot
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travelpilot"]
+      interval: 5s
+      retries: 10
+    ports: ["127.0.0.1:5432:5432"]
+
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://travelpilot:${POSTGRES_PASSWORD:-travelpilot}@db:5432/travelpilot
+    depends_on:
+      db: {condition: service_healthy}
+    ports: ["8000:8000"]
+    volumes: [uploads:/data/uploads]
+    command: ["web"]
+
+  worker:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://travelpilot:${POSTGRES_PASSWORD:-travelpilot}@db:5432/travelpilot
+    depends_on:
+      web: {condition: service_healthy}
+    volumes: [uploads:/data/uploads]
+    command: ["worker"]
+
+volumes:
+  pgdata:
+  uploads:

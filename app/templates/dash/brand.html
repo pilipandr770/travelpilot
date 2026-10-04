@@ -1,0 +1,28 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area %}
+{% block title %}{{ t('Бренд и сайт') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Бренд и сайт') }}</h1><a class="btn secondary small" href="{{ preview }}" target="_blank" rel="noopener">{{ t('Предпросмотр') }} ↗</a></div>
+<form method="post" enctype="multipart/form-data" class="card">{{ csrf() }}
+  <div class="grid g2">
+    {{ field('name', 'Название агентства', agency.name, required=true, maxlength=120) }}
+    {{ field('tagline', 'Слоган', agency.tagline, maxlength=160) }}
+    {{ field('hero_title', 'Заголовок на главной', agency.hero_title, maxlength=160) }}
+    {{ field('hero_subtitle', 'Подзаголовок', agency.hero_subtitle, maxlength=300) }}
+  </div>
+  {{ area('about_md', 'О нас (Markdown)', agency.about_md, 6, '', 6000) }}
+  <div class="grid g3">
+    <div class="field"><label>{{ t('Цвет бренда') }}</label><input type="color" name="primary_color" value="{{ agency.primary_color }}"></div>
+    <div class="field"><label>{{ t('Языки сайта') }}</label>{% for code in SITE_LANGS %}<label class="check"><input type="checkbox" name="languages" value="{{ code }}" {{ 'checked' if code in agency.languages }}><span>{{ LANG_LABELS[code] }}</span></label>{% endfor %}</div>
+    <div class="field"><label>{{ t('Язык по умолчанию') }}</label><select name="default_language">{% for code in SITE_LANGS %}<option value="{{ code }}" {{ 'selected' if code == agency.default_language }}>{{ LANG_LABELS[code] }}</option>{% endfor %}</select></div>
+  </div>
+  <div class="grid g2">
+    <div class="field"><label>{{ t('Логотип') }}</label>{% if agency.logo_file %}<img src="{{ url_for('dash.media', name=agency.logo_file) }}" alt="" style="height:48px;margin-bottom:.5rem">{% endif %}<input type="file" name="logo" accept="image/png,image/jpeg,image/webp"></div>
+    <div class="field"><label>{{ t('Главное изображение') }}</label>{% if agency.hero_file %}<img src="{{ url_for('dash.media', name=agency.hero_file) }}" alt="" style="height:80px;margin-bottom:.5rem;border-radius:8px">{% endif %}<input type="file" name="hero" accept="image/png,image/jpeg,image/webp"></div>
+  </div>
+  <div class="field"><label>{{ t('Галерея (до 6 изображений)') }}</label><input type="file" name="gallery" multiple accept="image/png,image/jpeg,image/webp"><div class="help">JPG / PNG / WebP, до 10 МБ. Изображения перекодируются и очищаются от метаданных.</div></div>
+  <button class="btn">{{ t('Сохранить') }}</button>
+</form>
+{% if agency.gallery %}<div class="card" style="margin-top:1rem"><h3>{{ t('Галерея') }}</h3><div class="grid g3">{% for n in agency.gallery %}<div><img src="{{ url_for('dash.media', name=n) }}" alt="" style="border-radius:10px;aspect-ratio:4/3;object-fit:cover;width:100%">
+<form method="post" action="{{ url_for('dash.gallery_delete', name=n) }}" data-confirm="{{ t('Удалить изображение?') }}">{{ csrf() }}<button class="btn small danger" style="margin-top:.4rem">{{ t('Удалить') }}</button></form></div>{% endfor %}</div></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, post_btn %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Статья') }}</h1><div class="row"><span class="badge {{ 'ok' if post.status == 'published' else 'warn' }}">{{ post.status }}</span><a class="btn secondary small" href="{{ url_for('dash.blog') }}">←</a></div></div>
+{% if post.generated_by_ai %}<div class="alert info small">{{ t('Статья создана ИИ. Прочитайте, проверьте факты (цены, правила въезда) и отредактируйте перед публикацией.') }}</div>{% endif %}
+{% if post.crosspost_results %}<div class="alert info small">{{ t('Кросспост') }}: {{ post.crosspost_results }}</div>{% endif %}
+<div class="grid g2">
+<form method="post" class="card">{{ csrf() }}
+  {{ field('title', 'Заголовок (SEO ≤ 60 симв.)', post.title, maxlength=190) }}
+  {{ field('slug', 'URL (slug)', post.slug, maxlength=100) }}
+  {{ field('meta_description', 'Meta description (≤ 155)', post.meta_description, maxlength=190) }}
+  {{ field('excerpt', 'Анонс', post.excerpt, maxlength=390) }}
+  {{ field('tags', 'Теги (через запятую)', post.tags|join(', ')) }}
+  {{ area('body_md', 'Текст (Markdown)', post.body_md, 22, '', 20000) }}
+  <button class="btn">{{ t('Сохранить') }}</button>
+</form>
+<div>
+  <div class="card"><h3>{{ t('Публикация') }}</h3>
+  {% if post.status == 'published' %}<p><a href="{{ public_url }}" target="_blank" rel="noopener">{{ public_url }}</a></p>{{ post_btn(url_for('dash.post_unpublish', post_id=post.id), 'Снять с публикации') }}
+  {% else %}{{ post_btn(url_for('dash.post_publish', post_id=post.id), 'Опубликовать' + (' и разослать' if agency.blog_enabled else ''), 'btn') }}
+  {% if not agency.site_published %}<p class="help">{{ t('Сайт ещё не опубликован — статья станет видна после его публикации.') }}</p>{% endif %}{% endif %}
+  <div style="margin-top:1rem">{{ post_btn(url_for('dash.post_delete', post_id=post.id), 'Удалить', 'btn small danger', 'Удалить статью?') }}</div></div>
+  <div class="card prose" style="margin-top:1rem"><h3>{{ t('Предпросмотр') }}</h3>{{ html|safe }}</div>
+</div></div>
+{% endblock %}

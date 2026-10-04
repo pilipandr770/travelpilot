@@ -1,0 +1,39 @@
+{% extends "site/base.html" %}
+{% block title %}{{ agency.name }}{% if agency.tagline %} – {{ agency.tagline }}{% endif %}{% endblock %}
+{% block content %}
+<section class="shero {{ 'img' if agency.hero_file }}"{% if agency.hero_file %} style="background-image:url('/media/{{ agency.hero_file }}')"{% endif %}><div class="container">
+  <h1>{{ agency.hero_title or agency.name }}</h1>
+  {% if agency.hero_subtitle %}<p>{{ agency.hero_subtitle }}</p>{% endif %}
+  <div class="row" style="margin-top:1.4rem"><a class="btn" href="/offers">{{ t('s.hero_offers') }}</a><a class="btn secondary" href="#contact">{{ t('s.nav_contact') }}</a></div>
+</div></section>
+
+{% if about_html %}<section class="ssec"><div class="container prose" style="max-width:48rem"><h2>{{ t('s.about') }}</h2>{{ about_html|safe }}</div></section>{% endif %}
+
+<section class="ssec alt" id="offers"><div class="container">
+  <h2>{{ t('s.offers_title') }}</h2>
+  {% if offers %}<div class="grid g3">{% for o in offers %}{% include "site/_offer_card.html" %}{% endfor %}</div><p class="muted small" style="margin-top:1rem">{{ t('s.price_hint') }}</p><p><a href="/offers">{{ t('s.hero_offers') }} →</a></p>
+  {% else %}<p class="muted">{{ t('s.offers_empty') }}</p>{% endif %}
+</div></section>
+
+{% if posts %}<section class="ssec"><div class="container"><h2>{{ t('s.blog_title') }}</h2>
+  <div class="grid g3">{% for p in posts %}{% include "site/_post_card.html" %}{% endfor %}</div><p style="margin-top:1rem"><a href="/blog">{{ t('s.nav_blog') }} →</a></p></div></section>{% endif %}
+
+{% if agency.gallery %}<section class="ssec alt"><div class="container gallery">{% for n in agency.gallery %}<img src="/media/{{ n }}" alt="" loading="lazy">{% endfor %}</div></section>{% endif %}
+
+{% if reviews %}<section class="ssec"><div class="container"><h2>{{ t('s.reviews_title') }}</h2><div class="grid g3">
+  {% for r in reviews %}<div class="card"><div class="stars">{{ '★' * r.rating }}{{ '☆' * (5 - r.rating) }}</div><p>{{ r.text }}</p><p class="muted small">— {{ r.author_name }}</p></div>{% endfor %}</div></div></section>{% endif %}
+
+<section class="ssec alt" id="contact"><div class="container" style="max-width:640px">
+  <h2>{{ t('s.contact_title') }}</h2>
+  <form method="post" action="/contact" class="card">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+    <div class="field"><label for="c-name">{{ t('s.c_name') }}</label><input id="c-name" name="name" required maxlength="120"></div>
+    <div class="field"><label for="c-email">{{ t('s.c_email') }}</label><input id="c-email" type="email" name="email" required></div>
+    <div class="field"><label for="c-phone">{{ t('s.c_phone') }}</label><input id="c-phone" name="phone" maxlength="40"></div>
+    <div class="field"><label for="c-msg">{{ t('s.c_msg') }}</label><textarea id="c-msg" name="message" required maxlength="3000"></textarea></div>
+    <label class="check" style="margin-bottom:1rem"><input type="checkbox" name="consent" required><span class="small">{{ t('s.c_consent') }} <a href="/datenschutz">{{ t('s.privacy') }}</a></span></label>
+    <button class="btn">{{ t('s.c_send') }}</button>
+  </form>
+</div></section>
+{% endblock %}

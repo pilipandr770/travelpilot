@@ -1,0 +1,13 @@
+{% extends "site/base.html" %}
+{% block title %}Impressum – {{ agency.name }}{% endblock %}
+{% block content %}<section class="ssec"><div class="container article prose"><h1>Impressum</h1>
+<p><b>Angaben gemäß § 5 DDG</b></p>
+<p>{{ agency.legal_name or agency.name }}{% if agency.legal_form %} ({{ agency.legal_form }}){% endif %}<br>{{ agency.street }}<br>{{ agency.zip_code }} {{ agency.city }}<br>{{ agency.country }}</p>
+{% if agency.owner_name %}<p>Vertretungsberechtigt: {{ agency.owner_name }}</p>{% endif %}
+<p>Kontakt: {{ agency.contact_email }}{% if agency.phone %} · Tel. {{ agency.phone }}{% endif %}</p>
+{% if agency.registry_info %}<p>Registereintrag: {{ agency.registry_info }}</p>{% endif %}
+{% if agency.vat_id %}<p>USt-IdNr.: {{ agency.vat_id }}</p>{% elif agency.tax_number %}<p>Steuernummer: {{ agency.tax_number }}</p>{% endif %}
+{% if agency.insurance_text %}<h2>Berufshaftpflichtversicherung</h2><p>{{ agency.insurance_text }}</p>{% endif %}
+<h2>Vermittlerhinweis</h2><p>Wir vermitteln Reiseleistungen als Reisebüro. Vertragspartner des Reisevertrags ist der im jeweiligen Angebot genannte Reiseveranstalter bzw. Leistungsträger.</p>
+<h2>Verbraucherstreitbeilegung</h2><p>Wir sind weder bereit noch verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen, sofern keine gesetzliche Pflicht besteht.</p>
+</div></section>{% endblock %}

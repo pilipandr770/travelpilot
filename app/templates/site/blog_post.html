@@ -1,0 +1,15 @@
+{% extends "site/base.html" %}
+{% block title %}{{ post.title }} – {{ agency.name }}{% endblock %}
+{% block desc %}{{ post.meta_description or post.excerpt or post.title }}{% endblock %}
+{% block canonical %}{{ agency.site_url('/blog/' ~ post.slug) }}{% endblock %}
+{% block content %}
+<article class="ssec"><div class="container article">
+  <a href="/blog" class="small">{{ t('s.back') }}</a>
+  <h1>{{ post.title }}</h1>
+  <p class="muted small">{{ t('s.published') }} {{ post.published_at.strftime('%d.%m.%Y') if post.published_at else '' }}{% if post.generated_by_ai and agency.blog_ai_label %} · {{ t('s.ai_label') }}{% endif %}</p>
+  <div class="prose">{{ html|safe }}</div>
+  {% if post.tags %}<p style="margin-top:1.5rem">{% for tg in post.tags %}<span class="tag">{{ tg }}</span>{% endfor %}</p>{% endif %}
+  <div class="card" style="margin-top:2rem"><b>{{ agency.name }}</b><p class="muted" style="margin:.3rem 0 .8rem">{{ agency.tagline or '' }}</p><a class="btn" href="/#contact">{{ t('s.nav_contact') }}</a></div>
+</div></article>
+<script type="application/ld+json">{{ {"@context": "https://schema.org", "@type": "BlogPosting", "headline": post.title, "description": post.meta_description or post.excerpt or "", "datePublished": post.published_at.isoformat() if post.published_at else "", "inLanguage": post.language, "author": {"@type": "Organization", "name": agency.name}, "publisher": {"@type": "Organization", "name": agency.name}, "mainEntityOfPage": agency.site_url('/blog/' ~ post.slug)}|tojson }}</script>
+{% endblock %}

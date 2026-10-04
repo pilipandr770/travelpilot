@@ -1,0 +1,49 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, select, check, post_btn %}
+{% block title %}{{ t('Бронь') }} #{{ booking.id }}{% endblock %}
+{% block content %}
+{% set b = booking %}
+<div class="head"><h1>{{ t('Бронь') }} #{{ b.id }}</h1><div class="row"><span class="badge">{{ b.status }}</span>{% if b.lead_id %}<a class="btn secondary small" href="{{ url_for('dash.lead', lead_id=b.lead_id) }}">← {{ b.lead.name or t('Клиент') }}</a>{% endif %}</div></div>
+<div class="grid g2">
+<form method="post" class="card">{{ csrf() }}
+  {{ field('title', 'Название поездки', b.title, required=true) }}
+  <div class="grid g2">
+    {{ select('kind', 'Тип', [('package','Pauschalreise / пакет'),('flight','Flug / авиа'),('hotel','Hotel / отель'),('other','Other / другое')], b.kind) }}
+    {{ field('operator_name', 'Туроператор / поставщик (обязательно для документов)', b.operator_name) }}
+    {{ field('operator_booking_ref', 'Номер брони у оператора', b.operator_booking_ref) }}
+    {{ field('destination', 'Направление', b.destination) }}
+    {{ field('amount', 'Сумма', ('%.2f'|format(b.amount)), 'number', step='0.01') }}
+    {{ select('currency', 'Валюта', [('EUR','EUR'),('USD','USD'),('GBP','GBP'),('CHF','CHF')], b.currency) }}
+    {{ field('travel_start', 'Начало', b.travel_start.isoformat() if b.travel_start else '', 'date') }}
+    {{ field('travel_end', 'Конец', b.travel_end.isoformat() if b.travel_end else '', 'date') }}
+    {{ field('pax_adults', 'Взрослых', b.pax_adults, 'number') }}
+    {{ field('pax_children', 'Детей', b.pax_children, 'number') }}
+  </div>
+  {{ select('status', 'Статус', [('draft','draft'),('proposal_sent','proposal_sent'),('awaiting_payment','awaiting_payment'),('paid','paid'),('confirmed','confirmed'),('cancelled','cancelled')], b.status) }}
+  {{ check('sicherungsschein_confirmed', 'Sicherungsschein от оператора получен и будет передан клиенту', b.sicherungsschein_confirmed, 'Для пакетных туров ссылка на оплату создаётся только при этой отметке (§ 651r BGB).') }}
+  {{ area('notes', 'Заметки', b.notes, 3) }}
+  <button class="btn">{{ t('Сохранить') }}</button>
+</form>
+<div>
+  <div class="card"><h3>{{ t('Документы') }}</h3>
+    {% for d in b.documents %}<div class="row between" style="padding:.3rem 0;border-bottom:1px solid var(--line)"><a href="{{ url_for('dash.document_download', doc_id=d.id) }}">{{ d.kind }} · {{ d.language }} · {{ d.created_at.strftime('%d.%m.%Y') }}</a>{{ post_btn(url_for('dash.document_delete', doc_id=d.id), '✕', 'btn small danger', 'Удалить документ?') }}</div>{% else %}<p class="muted small">{{ t('Документов пока нет.') }}</p>{% endfor %}
+    <form method="post" action="{{ url_for('dash.booking_docs', booking_id=b.id) }}" class="row" style="margin-top:.8rem">{{ csrf() }}
+      <select name="kind" style="max-width:200px"><option value="proposal">{{ t('Предложение') }}</option><option value="confirmation">{{ t('Подтверждение посредничества') }}</option><option value="trip_guide">{{ t('Путеводитель (ИИ)') }}</option></select>
+      <select name="lang" style="max-width:130px">{% for code in SITE_LANGS %}<option value="{{ code }}" {{ 'selected' if b.lead and b.lead.language == code }}>{{ LANG_LABELS[code] }}</option>{% endfor %}</select>
+      <button class="btn small">{{ t('Создать PDF') }}</button></form>
+    <p class="help">{{ t('Документы посредника не заменяют подтверждение, счёт и Sicherungsschein оператора. Проверяйте PDF перед отправкой.') }}</p>
+  </div>
+  <div class="card" style="margin-top:1rem"><h3>{{ t('Оплата') }}</h3>
+    {% if not has_stripe %}<p class="muted small">{{ t('Stripe не подключён.') }} <a href="{{ url_for('dash.integrations') }}">{{ t('Интеграции') }}</a></p>
+    {% else %}
+      {% if b.payment_url %}<div class="copybox"><input id="payurl" type="text" readonly value="{{ b.payment_url }}"><button type="button" class="btn small secondary" data-copy="#payurl">⧉</button></div>{% endif %}
+      {% if b.paid_at %}<p class="alert success" style="margin-top:.6rem">{{ t('Оплачено') }}: {{ b.paid_at.strftime('%d.%m.%Y %H:%M') }}</p>{% endif %}
+      {{ post_btn(url_for('dash.booking_pay', booking_id=b.id), 'Создать / обновить ссылку на оплату', 'btn small') }}
+      <p class="help">{{ t('Деньги идут на ваш Stripe-аккаунт. Сначала сохраните сумму и отметку Sicherungsschein (для пакетов).') }}</p>
+    {% endif %}</div>
+  <div class="card" style="margin-top:1rem"><h3>{{ t('Отзыв клиента') }}</h3>
+    {% if review %}<p>{{ '★' * review.rating }} {{ review.author_name }}{% if review.text %}<br><span class="muted">{{ review.text }}</span>{% endif %}</p>
+    {% else %}<p class="muted small">{{ t('После поездки отправьте клиенту эту ссылку (работает для статусов paid/confirmed):') }}</p><div class="copybox"><input id="revurl" type="text" readonly value="{{ review_url }}"><button type="button" class="btn small secondary" data-copy="#revurl">⧉</button></div>{% endif %}</div>
+  <div style="margin-top:1rem">{{ post_btn(url_for('dash.booking_delete', booking_id=b.id), 'Удалить бронь', 'btn small danger', 'Удалить бронь и документы?') }}</div>
+</div></div>
+{% endblock %}

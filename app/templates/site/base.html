@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="{{ g.lang }}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}{{ agency.name }}{% endblock %}</title>
+<meta name="description" content="{% block desc %}{{ agency.tagline or agency.hero_subtitle or agency.name }}{% endblock %}">
+{% if not agency.site_published or preview %}<meta name="robots" content="noindex,nofollow">{% endif %}
+<link rel="canonical" href="{% block canonical %}{{ agency.site_url(request.path) }}{% endblock %}">
+<link rel="alternate" type="application/rss+xml" title="{{ agency.name }}" href="/blog/feed.xml">
+<meta property="og:title" content="{{ self.title() }}"><meta property="og:site_name" content="{{ agency.name }}"><meta property="og:type" content="website">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+<link rel="stylesheet" href="/theme.css">
+</head>
+<body class="site">
+{% if preview and not agency.site_published %}<div class="previewbar">{{ t('s.preview') }}</div>{% endif %}
+<header class="sbar"><div class="container">
+  <a class="brand" href="/">{% if agency.logo_file %}<img src="/media/{{ agency.logo_file }}" alt="">{% endif %}<span>{{ agency.name }}</span></a>
+  <nav class="snav">
+    <a href="/#offers">{{ t('s.nav_offers') }}</a><a href="/blog">{{ t('s.nav_blog') }}</a><a href="/#contact">{{ t('s.nav_contact') }}</a>
+    {% if site_langs|length > 1 %}<span class="slang">{% for code in site_langs %}<a href="/set-language/{{ code }}?next={{ request.path }}" class="{{ 'on' if g.lang == code }}">{{ code|upper }}</a>{% endfor %}</span>{% endif %}
+  </nav>
+</div></header>
+<main>{% block content %}{% endblock %}</main>
+<footer class="sfoot"><div class="container">
+  <div><b>{{ agency.legal_name or agency.name }}</b><br>{{ agency.street }}{% if agency.street %}, {% endif %}{{ agency.zip_code }} {{ agency.city }}<br>{{ agency.contact_email }}{% if agency.phone %} · {{ agency.phone }}{% endif %}</div>
+  <div class="row"><a href="/impressum">{{ t('s.imprint') }}</a><a href="/datenschutz">{{ t('s.privacy') }}</a>{% if agency.terms_md %}<a href="/agb">{{ t('s.terms') }}</a>{% endif %}<a href="/blog/feed.xml">{{ t('s.rss') }}</a></div>
+</div></footer>
+{% include "site/chat_widget.html" %}
+</body></html>

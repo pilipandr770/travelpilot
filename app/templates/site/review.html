@@ -1,0 +1,7 @@
+{% extends "site/base.html" %}
+{% block content %}<section class="ssec"><div class="container" style="max-width:560px"><h1>{{ t('s.review_title') }}</h1>
+<form method="post" class="card"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="field"><label>{{ t('s.review_name') }}</label><input name="name" required maxlength="80"></div>
+<div class="field"><label>{{ t('s.review_rating') }}</label><select name="rating">{% for n in [5,4,3,2,1] %}<option value="{{ n }}">{{ '★' * n }}</option>{% endfor %}</select></div>
+<div class="field"><label>{{ t('s.review_text') }}</label><textarea name="text" maxlength="1500"></textarea></div>
+<button class="btn">{{ t('s.review_send') }}</button></form></div></section>{% endblock %}

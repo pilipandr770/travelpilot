@@ -1,0 +1,28 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, select, check %}
+{% block title %}{{ t('Предложение') }}{% endblock %}
+{% block content %}
+{% set o = offer %}
+<div class="head"><h1>{{ t('Предложение') }}</h1><a class="btn secondary small" href="{{ url_for('dash.offers') }}">←</a></div>
+<form method="post" class="card">{{ csrf() }}
+  {{ field('title', 'Название', o.title if o else '', required=true, maxlength=190) }}
+  <div class="grid g3">
+    {{ field('destination', 'Направление (страна/город)', o.destination if o else '', maxlength=115) }}
+    {{ select('kind', 'Тип', [('package','Pauschalreise / пакет'),('flight','Flug / авиа'),('hotel','Hotel / отель'),('other','Other / другое')], o.kind if o else 'package', 'Пакет = Veranstalter несёт ответственность и выдаёт Sicherungsschein.') }}
+    {{ field('operator_name', 'Туроператор / поставщик', o.operator_name if o else '', maxlength=115) }}
+    {{ field('price_from', 'Цена от', ('%.2f'|format(o.price_from)) if o and o.price_from is not none else '', 'number', step='0.01') }}
+    {{ select('currency', 'Валюта', [('EUR','EUR'),('USD','USD'),('GBP','GBP'),('CHF','CHF')], o.currency if o else 'EUR') }}
+    {{ field('price_note', 'К чему цена', o.price_note if o else 'pro Person', maxlength=75) }}
+    {{ field('nights', 'Ночей', o.nights if o else '', 'number') }}
+    {{ field('departure_from', 'Вылет из', o.departure_from if o else '', maxlength=75) }}
+    {{ field('url', 'Ссылка у оператора', o.url if o else '', 'url', maxlength=500) }}
+    {{ field('valid_from', 'Действует с', o.valid_from.isoformat() if o and o.valid_from else '', 'date') }}
+    {{ field('valid_until', 'Действует до', o.valid_until.isoformat() if o and o.valid_until else '', 'date') }}
+  </div>
+  {{ area('description', 'Описание', o.description if o else '', 5, '', 3000) }}
+  <div class="grid g2">{{ area('includes', 'Включено', o.includes if o else '', 4, '', 1500) }}{{ area('excludes', 'Не включено', o.excludes if o else '', 4, '', 1500) }}</div>
+  {{ check('is_active', 'Активно (показывать клиентам и боту)', o.is_active if o else true) }}
+  {{ check('verified_now', 'Цена и наличие проверены сегодня', true, 'Дата проверки показывается клиенту.') }}
+  <button class="btn">{{ t('Сохранить') }}</button>
+</form>
+{% endblock %}

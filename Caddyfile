@@ -1,0 +1,22 @@
+{
+	email {$ACME_EMAIL}
+	on_demand_tls {
+		# Caddy спрашивает приложение, можно ли выпускать сертификат для домена
+		ask http://web:8000/_internal/tls-ask?token={$INTERNAL_TOKEN}
+	}
+}
+
+# Платформа (apex). Wildcard-субдомены и кастомные домены — ниже, сертификаты по запросу.
+{$BASE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:8000
+}
+
+# Все остальные хосты: <slug>.BASE_DOMAIN и подключённые домены агентств
+https:// {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	reverse_proxy web:8000
+}

@@ -1,0 +1,30 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, select, check, post_btn %}
+{% block title %}{{ t('Настройки блога') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Настройки блога') }}</h1></div>
+<form method="post" class="card">{{ csrf() }}
+  {{ check('blog_enabled', 'Автоматическая генерация включена', agency.blog_enabled, 'Воркер создаёт статьи по расписанию вашим ключом Anthropic.') }}
+  <div class="grid g3">
+    {{ select('blog_mode', 'Режим', [('draft', t('Черновик → одобрение (рекомендуется)')), ('auto', t('Автопубликация'))], agency.blog_mode, 'Массовый ИИ-текст без проверки Google может понизить. Автопубликация — на ваш риск.') }}
+    {{ field('blog_posts_per_week', 'Статей в неделю', agency.blog_posts_per_week, 'number') }}
+    {{ select('blog_language', 'Язык статей', [('de','Deutsch'),('en','English'),('ru','Русский'),('uk','Українська')], agency.blog_language) }}
+  </div>
+  {% set opts = [('', t('по умолчанию'))] %}{% for m in models %}{% set _ = opts.append((m, m)) %}{% endfor %}
+  {{ select('blog_model', 'Модель Claude', opts, agency.blog_model or '') }}
+  {{ field('blog_tone', 'Тон и стиль', agency.blog_tone, maxlength=300, placeholder='warm, praktisch, mit konkreten Tipps') }}
+  {{ area('blog_topics', 'Темы (по одной в строке)', agency.blog_topics, 8, 'Используются по очереди; когда закончатся — берутся свежие записи из RSS.', 4000) }}
+  {{ check('blog_ai_label', 'Помечать ИИ-статьи («Создано с помощью ИИ»)', agency.blog_ai_label, 'Рекомендуется для прозрачности.') }}
+  <button class="btn">{{ t('Сохранить') }}</button>
+</form>
+<div class="grid g2" style="margin-top:1rem">
+  <div class="card"><h3>RSS {{ t('источники') }}</h3><p class="muted small">{{ t('RSS — только повод для темы: тексты чужих статей не копируются.') }}</p>
+    {% for f in feeds %}<div class="row between" style="border-bottom:1px solid var(--line);padding:.3rem 0"><span class="small">{{ f.title or f.url }}{% if f.last_error %} <span class="badge err">{{ f.last_error }}</span>{% endif %}</span>{{ post_btn(url_for('dash.feed_delete', feed_id=f.id), '✕', 'btn small danger') }}</div>{% else %}<p class="muted small">—</p>{% endfor %}
+    <form method="post" action="{{ url_for('dash.feed_add') }}" class="row" style="margin-top:.6rem">{{ csrf() }}<input type="url" name="url" placeholder="https://…/feed.xml" style="flex:1"><button class="btn small">{{ t('Добавить') }}</button></form></div>
+  <div class="card"><h3>{{ t('Кросспост') }}</h3>
+    {% if not has_tg %}<p class="alert warn small">{{ t('Для Telegram нужен токен бота.') }} <a href="{{ url_for('dash.integrations') }}">{{ t('Интеграции') }}</a></p>{% endif %}
+    {% for c in channels %}<div class="row between" style="border-bottom:1px solid var(--line);padding:.3rem 0"><span class="small">{{ c.kind }}: {{ c.target }}</span>{{ post_btn(url_for('dash.channel_delete', ch_id=c.id), '✕', 'btn small danger') }}</div>{% else %}<p class="muted small">—</p>{% endfor %}
+    <form method="post" action="{{ url_for('dash.channel_add') }}" class="row" style="margin-top:.6rem">{{ csrf() }}<input name="target" placeholder="@mychannel {{ t('или') }} chat_id" style="flex:1"><button class="btn small">{{ t('Добавить') }}</button></form>
+    <p class="help">X (Twitter) и WhatsApp — в дорожной карте (docs/02-ROADMAP.md).</p></div>
+</div>
+{% endblock %}

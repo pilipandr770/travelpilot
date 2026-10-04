@@ -1,0 +1,41 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, post_btn %}
+{% block title %}{{ t('Интеграции') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Интеграции и ключи') }}</h1></div>
+<div class="alert info small">{{ t('Ключи хранятся в зашифрованном виде и после сохранения больше нигде не показываются. Ротация: удалите и добавьте новый.') }}</div>
+{% if agency.llm_last_error %}<div class="alert error">{{ agency.llm_last_error }}</div>{% endif %}
+
+{% macro keycard(provider, title, hint, test=false) %}
+<div class="card" style="margin-bottom:1rem">
+  <div class="row between"><h3 style="margin:0">{{ title }}</h3>{% if agency.has_secret(provider) %}<span class="badge ok">{{ t('подключено') }} · {{ agency.secret_hint(provider) }}</span>{% else %}<span class="badge">{{ t('не задано') }}</span>{% endif %}</div>
+  <p class="muted small">{{ hint }}</p>
+  <form method="post" action="{{ url_for('dash.secret_save', provider=provider) }}" class="row">{{ csrf() }}
+    <input type="password" name="value" placeholder="{{ t('Вставьте ключ') }}" autocomplete="off" style="flex:1;min-width:240px"><button class="btn small">{{ t('Сохранить') }}</button></form>
+  {% if agency.has_secret(provider) %}<div class="row" style="margin-top:.6rem">
+    {% if test %}{{ post_btn(url_for('dash.secret_test', provider=provider), 'Проверить ключ') }}{% endif %}
+    {{ post_btn(url_for('dash.secret_delete', provider=provider), 'Удалить', 'btn small danger', 'Удалить ключ?') }}</div>{% endif %}
+</div>
+{% endmacro %}
+
+{{ keycard('anthropic', 'Anthropic (Claude) — чат, блог, разбор предложений', 'console.anthropic.com → API keys. Расходы идут на ваш аккаунт; задайте месячный лимит в консоли Anthropic.', true) }}
+{{ keycard('stripe_secret', 'Stripe — приём оплат (опционально)', 'Stripe Dashboard → Developers → API keys → «Create restricted key» с правом Checkout Sessions: Write. Полные ключи sk_live_ не принимаются.', true) }}
+{{ keycard('stripe_webhook', 'Stripe — webhook secret', 'Создайте endpoint в Stripe и вставьте signing secret (whsec_…).') }}
+<div class="card" style="margin:-.4rem 0 1rem"><label>Webhook URL (события: checkout.session.completed, checkout.session.async_payment_succeeded)</label>
+  <div class="copybox"><input id="whurl" type="text" readonly value="{{ webhook_url }}"><button type="button" class="btn small secondary" data-copy="#whurl">⧉</button></div>
+  {% if agency.custom_domain_verified %}<p class="help">{{ t('Если домен сменится — обновите URL в Stripe.') }}</p>{% endif %}</div>
+{{ keycard('telegram_bot', 'Telegram-бот — кросспост статей', 'Создайте бота у @BotFather, добавьте его администратором в ваш канал.', true) }}
+{{ keycard('duffel', 'Duffel — авиабилеты (экспериментально)', 'Токен из Duffel Dashboard (начните с duffel_test_…).') }}
+
+<form method="post" action="{{ url_for('dash.connectors_save') }}" class="card" style="margin-bottom:1rem">{{ csrf() }}
+  <h3>{{ t('Поставщики предложений') }}</h3>
+  <label class="check"><input type="checkbox" checked disabled><span>{{ t('Предложения агентства (ручной ввод) — всегда включено') }}</span></label>
+  <label class="check"><input type="checkbox" name="connectors" value="duffel" {{ 'checked' if 'duffel' in agency.enabled_connectors }}><span>Duffel ({{ t('нужен токен выше') }})</span></label>
+  <button class="btn small" style="margin-top:.6rem">{{ t('Сохранить') }}</button>
+</form>
+
+<div class="card"><h3>{{ t('Расход ИИ в этом месяце') }}</h3>
+{% if usage %}<table><tr><th>{{ t('Тип') }}</th><th>{{ t('Запросов') }}</th><th>{{ t('Токенов вход') }}</th><th>{{ t('Токенов выход') }}</th></tr>
+{% for kind, tin, tout, n in usage %}<tr><td>{{ kind }}</td><td>{{ n }}</td><td>{{ tin or 0 }}</td><td>{{ tout or 0 }}</td></tr>{% endfor %}</table>
+<p class="help">{{ t('Стоимость считайте по тарифам Anthropic для выбранной модели.') }}</p>{% else %}<p class="muted">{{ t('Пока нет данных.') }}</p>{% endif %}</div>
+{% endblock %}

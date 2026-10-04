@@ -1,0 +1,3 @@
+<article class="card post"><h3><a href="/blog/{{ p.slug }}">{{ p.title }}</a></h3>
+  <div class="meta muted small">{{ p.published_at.strftime('%d.%m.%Y') if p.published_at else '' }}</div>
+  <p class="muted" style="margin:0">{{ p.excerpt or '' }}</p><a href="/blog/{{ p.slug }}">{{ t('s.read_more') }} →</a></article>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, flashes %}
+{% block title %}{{ t('l.nav_start') }}{% endblock %}
+{% block content %}<div class="authwrap"><div class="card authcard">
+<h2>{{ t('l.hero_cta') }}</h2>{{ flashes() }}
+<form method="post">{{ csrf() }}
+  <div class="hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="field"><label for="agency_name">Name des Reisebüros / Название агентства</label><input id="agency_name" name="agency_name" required maxlength="120" value="{{ form.get('agency_name','') }}"></div>
+  <div class="field"><label for="email">E-Mail</label><input id="email" type="email" name="email" required autocomplete="username" value="{{ form.get('email','') }}"></div>
+  <div class="field"><label for="password">Passwort / Пароль (min. 12)</label><input id="password" type="password" name="password" required minlength="12" autocomplete="new-password"></div>
+  <div class="field"><label for="country">Land / Страна</label><select id="country" name="country"><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option><option value="UA">Україна</option><option value="PL">Polska</option><option value="OTHER">…</option></select></div>
+  <label class="check" style="margin-bottom:1rem"><input type="checkbox" name="accept_terms" required><span class="small">Ich akzeptiere die <a href="{{ url_for('platform.legal', page='agb') }}" target="_blank">AGB</a>, die <a href="{{ url_for('platform.legal', page='datenschutz') }}" target="_blank">Datenschutzerklärung</a> und den <a href="{{ url_for('platform.legal', page='avv') }}" target="_blank">AVV</a>. / Принимаю условия, политику конфиденциальности и AVV.</span></label>
+  <button class="btn block">{{ t('l.hero_cta') }}</button>
+</form>
+<p class="small muted" style="margin-top:1rem"><a href="{{ url_for('auth.login') }}">Login</a></p>
+</div></div>{% endblock %}

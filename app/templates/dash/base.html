@@ -1,0 +1,41 @@
+{% from "macros.html" import flashes %}
+<!doctype html>
+<html lang="{{ g.lang }}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>{% block title %}{{ t('Обзор') }}{% endblock %} · {{ cfg.PLATFORM_NAME }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/platform.css') }}">
+<script src="{{ url_for('static', filename='js/dashboard.js') }}" defer></script>
+</head>
+<body>
+{% set ep = request.endpoint or '' %}
+<div class="shell">
+<aside class="side">
+  <a class="logo" href="{{ url_for('dash.index') }}">Travel<span>Pilot</span></a>
+  <a href="{{ url_for('dash.index') }}" class="{{ 'on' if ep == 'dash.index' }}">{{ t('Обзор') }}</a>
+  <div class="sep">{{ t('Сайт') }}</div>
+  <a href="{{ url_for('dash.legal') }}" class="{{ 'on' if ep.startswith('dash.legal') or ep == 'dash.check_vat' }}">{{ t('Юридические данные') }}</a>
+  <a href="{{ url_for('dash.brand') }}" class="{{ 'on' if ep == 'dash.brand' }}">{{ t('Бренд и сайт') }}</a>
+  <a href="{{ url_for('dash.domain') }}" class="{{ 'on' if ep == 'dash.domain' }}">{{ t('Домен') }}</a>
+  <div class="sep">{{ t('Продажи') }}</div>
+  <a href="{{ url_for('dash.leads') }}" class="{{ 'on' if ep in ('dash.leads','dash.lead','dash.booking') }}">{{ t('Клиенты') }}</a>
+  <a href="{{ url_for('dash.offers') }}" class="{{ 'on' if ep.startswith('dash.offer') }}">{{ t('Предложения') }}</a>
+  <a href="{{ url_for('dash.reviews') }}" class="{{ 'on' if ep == 'dash.reviews' }}">{{ t('Отзывы') }}</a>
+  <div class="sep">{{ t('Автоматизация') }}</div>
+  <a href="{{ url_for('dash.bot') }}" class="{{ 'on' if ep == 'dash.bot' }}">{{ t('Чат-бот') }}</a>
+  <a href="{{ url_for('dash.blog') }}" class="{{ 'on' if ep in ('dash.blog','dash.post_edit') }}">{{ t('Блог') }}</a>
+  <a href="{{ url_for('dash.blog_settings') }}" class="{{ 'on' if ep == 'dash.blog_settings' }}">{{ t('Настройки блога') }}</a>
+  <a href="{{ url_for('dash.integrations') }}" class="{{ 'on' if ep == 'dash.integrations' }}">{{ t('Интеграции') }}</a>
+  <a href="{{ url_for('dash.stats') }}" class="{{ 'on' if ep == 'dash.stats' }}">{{ t('Статистика') }}</a>
+  <div class="sep">{{ current_user.email }}</div>
+  <a href="{{ url_for('dash.account') }}" class="{{ 'on' if ep == 'dash.account' }}">{{ t('Аккаунт') }}</a>
+  {% if current_user.is_superadmin %}<a href="{{ url_for('admin.index') }}">Admin</a>{% endif %}
+  <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn small secondary" style="margin:.6rem .7rem">{{ t('Выйти') }}</button></form>
+</aside>
+<div class="main">
+  {{ flashes() }}
+  {% block content %}{% endblock %}
+</div>
+</div>
+</body></html>

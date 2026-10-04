@@ -1,0 +1,20 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, post_btn %}
+{% block title %}{{ t('Предложения') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Предложения') }}</h1><a class="btn" href="{{ url_for('dash.offer_new') }}">+ {{ t('Новое предложение') }}</a></div>
+<p class="muted">{{ t('Чат-бот показывает клиентам только АКТИВНЫЕ предложения из этого списка. Следите за актуальностью цен и дат.') }}</p>
+<div class="card"><table>
+<tr><th>{{ t('Название') }}</th><th>{{ t('Направление') }}</th><th>{{ t('Цена') }}</th><th>{{ t('Оператор') }}</th><th>{{ t('До') }}</th><th></th></tr>
+{% for o in offers %}<tr>
+  <td><a href="{{ url_for('dash.offer_edit', offer_id=o.id) }}">{{ o.title }}</a> {% if o.source == 'ai_import' %}<span class="badge">AI</span>{% endif %}{% if not o.is_active %} <span class="badge warn">{{ t('неактивно') }}</span>{% endif %}</td>
+  <td>{{ o.destination or '—' }}</td><td>{% if o.price_from is not none %}{{ '%.2f'|format(o.price_from) }} {{ o.currency }}{% else %}—{% endif %}</td>
+  <td>{{ o.operator_name or '—' }}</td><td>{{ o.valid_until.strftime('%d.%m.%Y') if o.valid_until else '—' }}</td>
+  <td class="row">{{ post_btn(url_for('dash.offer_toggle', offer_id=o.id), 'Выкл.' if o.is_active else 'Вкл.') }}{{ post_btn(url_for('dash.offer_delete', offer_id=o.id), 'Удалить', 'btn small danger', 'Удалить предложение?') }}</td></tr>
+{% else %}<tr><td colspan="6" class="muted">{{ t('Предложений пока нет.') }}</td></tr>{% endfor %}
+</table></div>
+<div class="card" style="margin-top:1rem"><h3>{{ t('Вставить текст от оператора') }}</h3>
+<p class="muted small">{{ t('Вставьте письмо или текст с портала оператора — ИИ разложит его на предложения. Результат сохранится неактивным: проверьте цены и даты и включите.') }}</p>
+{% if not has_key %}<div class="alert warn">{{ t('Нужен ключ Anthropic.') }} <a href="{{ url_for('dash.integrations') }}">{{ t('Интеграции') }}</a></div>{% endif %}
+<form method="post" action="{{ url_for('dash.offer_import_text') }}">{{ csrf() }}<textarea name="text" rows="8" maxlength="20000" placeholder="…"></textarea><button class="btn" style="margin-top:.6rem">{{ t('Разобрать с помощью ИИ') }}</button></form></div>
+{% endblock %}

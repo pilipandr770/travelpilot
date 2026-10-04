@@ -1,0 +1,17 @@
+{% extends "dash/base.html" %}
+{% block title %}{{ t('Статистика') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Статистика') }} <span class="muted small">{{ t('за 30 дней') }}</span></h1></div>
+<div class="grid g3">
+  <div class="card"><div class="stat">{{ views }}</div><div class="muted small">{{ t('просмотров') }}</div></div>
+  <div class="card"><div class="stat">{{ kinds.get('chat_start', 0) }}</div><div class="muted small">{{ t('чатов') }}</div></div>
+  <div class="card"><div class="stat">{{ kinds.get('lead', 0) }}</div><div class="muted small">{{ t('заявок') }} · {{ conv }}% {{ t('конверсия') }}</div></div>
+</div>
+<div class="grid g2" style="margin-top:1rem">
+  <div class="card"><h3>{{ t('Популярные страницы') }}</h3><table>{% for path, n in top_pages %}<tr><td>{{ path }}</td><td>{{ n }}</td></tr>{% else %}<tr><td class="muted">—</td></tr>{% endfor %}</table></div>
+  <div class="card"><h3>{{ t('Откуда приходят') }}</h3><table>{% for host, n in referrers %}<tr><td>{{ host }}</td><td>{{ n }}</td></tr>{% else %}<tr><td class="muted">—</td></tr>{% endfor %}</table></div>
+</div>
+<div class="card" style="margin-top:1rem"><h3>{{ t('Оплаченные брони') }}: {{ paid }}</h3>
+<h3>{{ t('Расход ИИ') }}</h3><table><tr><th>{{ t('Тип') }}</th><th>in</th><th>out</th></tr>{% for k, i, o in usage %}<tr><td>{{ k }}</td><td>{{ i or 0 }}</td><td>{{ o or 0 }}</td></tr>{% else %}<tr><td colspan="3" class="muted">—</td></tr>{% endfor %}</table>
+<p class="help">{{ t('Статистика приватная: без cookies и IP-адресов, только агрегируемые события.') }}</p></div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf %}
+{% block title %}{{ t('Клиенты') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Клиенты') }}</h1></div>
+<form method="get" class="row" style="margin-bottom:1rem"><input type="search" name="q" value="{{ search }}" placeholder="{{ t('Поиск') }}" style="max-width:260px">
+  <select name="status" style="max-width:180px"><option value="">{{ t('Все статусы') }}</option>{% for s in LEAD_STATUSES %}<option value="{{ s }}" {{ 'selected' if s == status }}>{{ s }}</option>{% endfor %}</select><button class="btn secondary small">{{ t('Найти') }}</button></form>
+<div class="card"><table><tr><th>{{ t('Имя') }}</th><th>E-mail</th><th>{{ t('Источник') }}</th><th>{{ t('Статус') }}</th><th>{{ t('Дата') }}</th></tr>
+{% for l in leads %}<tr><td><a href="{{ url_for('dash.lead', lead_id=l.id) }}">{{ l.name or '—' }}</a></td><td>{{ l.email or l.phone or '—' }}</td><td>{{ l.source }}</td><td><span class="badge {{ 'warn' if l.status == 'new' }}">{{ l.status }}</span></td><td>{{ l.created_at.strftime('%d.%m.%Y %H:%M') }}</td></tr>
+{% else %}<tr><td colspan="5" class="muted">{{ t('Пока никого нет.') }}</td></tr>{% endfor %}</table></div>
+<details class="card" style="margin-top:1rem"><summary>+ {{ t('Добавить клиента вручную') }}</summary>
+<form method="post" action="{{ url_for('dash.lead_new') }}" class="grid g3" style="margin-top:1rem">{{ csrf() }}<input name="name" placeholder="{{ t('Имя') }}"><input name="email" type="email" placeholder="E-mail"><input name="phone" placeholder="{{ t('Телефон') }}">
+<label class="check"><input type="checkbox" name="consent"><span class="small">{{ t('Клиент дал согласие на обработку данных') }}</span></label><button class="btn small">{{ t('Добавить') }}</button></form></details>
+{% endblock %}

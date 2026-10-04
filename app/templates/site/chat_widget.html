@@ -1,0 +1,11 @@
+{% if agency.bot_enabled and agency.has_secret('anthropic') %}
+<div id="cw-root" data-greeting="{{ agency.bot_greeting or t('s.chat_greeting') }}" data-error="{{ t('s.chat_error') }}" data-limit="{{ t('s.chat_limit') }}" data-unavailable="{{ t('s.chat_unavailable') }}" data-from="{{ t('s.from') }}" data-nights="{{ t('s.nights') }}" data-valid="{{ t('s.valid_until') }}"></div>
+<button id="cw-open" class="cw-btn" type="button">💬 {{ agency.bot_name or t('s.chat_open') }}</button>
+<section id="cw" class="cw" aria-label="{{ agency.bot_name or t('s.chat_open') }}">
+  <header><span>{{ agency.bot_name or t('s.chat_open') }}</span><button id="cw-close" type="button" aria-label="{{ t('s.chat_close') }}">×</button></header>
+  <div class="notice">{{ t('s.chat_ai') }} <a href="/datenschutz">{{ t('s.privacy') }}</a></div>
+  <div id="cw-log" class="log"></div>
+  <form id="cw-form" autocomplete="off"><input id="cw-input" type="text" maxlength="1200" placeholder="{{ t('s.chat_placeholder') }}" aria-label="{{ t('s.chat_placeholder') }}"><button class="btn small" type="submit">{{ t('s.chat_send') }}</button></form>
+</section>
+<script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
+{% endif %}

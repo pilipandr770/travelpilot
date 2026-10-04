@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ cfg.PLATFORM_NAME }} – {{ t('l.hero_title') }}{% endblock %}
+{% block content %}
+<section class="hero"><div class="container">
+  <span class="badge">{{ t('l.hero_badge') }}</span>
+  <h1>{{ t('l.hero_title') }}</h1>
+  <p class="lead">{{ t('l.hero_sub') }}</p>
+  <div class="actions"><a class="btn" href="{{ url_for('auth.register') }}">{{ t('l.hero_cta') }}</a><a class="btn secondary" href="#how">{{ t('l.hero_cta2') }}</a></div>
+  <p class="small muted">{{ t('l.hero_note') }}</p>
+</div></section>
+
+<section class="block alt" id="how"><div class="container">
+  <h2 class="center">{{ t('l.how_title') }}</h2>
+  <div class="grid g3 steps" style="margin-top:2rem">
+    {% for n in range(1,5) %}<div class="card"><h3>{{ t('l.how%d_t' % n) }}</h3><p class="muted" style="margin:0">{{ t('l.how%d_d' % n) }}</p></div>{% endfor %}
+  </div>
+</div></section>
+
+<section class="block" id="features"><div class="container">
+  <h2 class="center">{{ t('l.feat_title') }}</h2>
+  <div class="grid g3" style="margin-top:2rem">
+    {% for n in range(1,7) %}<div class="card feature"><h3>{{ t('l.f%d_t' % n) }}</h3><p>{{ t('l.f%d_d' % n) }}</p></div>{% endfor %}
+  </div>
+</div></section>
+
+<section class="block alt"><div class="container grid g2">
+  <div><h2>{{ t('l.byok_title') }}</h2><p class="muted">{{ t('l.byok_text') }}</p>
+    <ul class="checks"><li>{{ t('l.byok_1') }}</li><li>{{ t('l.byok_2') }}</li><li>{{ t('l.byok_3') }}</li></ul></div>
+  <div><h2>{{ t('l.trust_title') }}</h2>
+    <ul class="checks">{% for n in range(1,5) %}<li>{{ t('l.trust_%d' % n) }}</li>{% endfor %}</ul></div>
+</div></section>
+
+<section class="block" id="pricing"><div class="container">
+  <h2 class="center">{{ t('l.price_title') }}</h2><p class="center muted">{{ t('l.price_sub') }}</p>
+  <div class="grid g3" style="margin-top:2rem">
+    {% for n in range(1,4) %}<div class="card price {{ 'featured' if n == 2 }}">
+      <h3>{{ t('l.p%d_name' % n) }}</h3><div><span class="amount">{{ t('l.p%d_price' % n) }}</span> <span class="per">{{ t('l.price_per') }}</span></div>
+      <p class="muted" style="margin:1rem 0">{{ t('l.p%d_f' % n) }}</p>
+      <a class="btn block {{ 'secondary' if n != 2 }}" href="{{ url_for('auth.register') }}">{{ t('l.price_cta') }}</a></div>{% endfor %}
+  </div>
+</div></section>
+
+<section class="block alt" id="faq"><div class="container" style="max-width:780px">
+  <h2 class="center">{{ t('l.faq_title') }}</h2>
+  {% for n in range(1,6) %}<details><summary>{{ t('l.q%d' % n) }}</summary><p>{{ t('l.a%d' % n) }}</p></details>{% endfor %}
+</div></section>
+
+<section class="block"><div class="container center"><h2>{{ t('l.cta_title') }}</h2><a class="btn" href="{{ url_for('auth.register') }}">{{ t('l.cta_btn') }}</a></div></section>
+{% endblock %}

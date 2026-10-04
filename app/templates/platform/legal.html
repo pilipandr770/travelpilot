@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}{{ page|capitalize }} – {{ cfg.PLATFORM_NAME }}{% endblock %}
+{% block content %}
+<div class="container prose" style="max-width:780px;padding:3rem 0">
+{% if page == 'impressum' %}
+<h1>Impressum</h1>
+<p>{{ cfg.PLATFORM_OPERATOR_NAME }}<br>{{ cfg.PLATFORM_OPERATOR_ADDRESS }}</p>
+<p>E-Mail: {{ cfg.PLATFORM_OPERATOR_EMAIL }}</p>
+{% if cfg.PLATFORM_OPERATOR_VAT %}<p>USt-IdNr.: {{ cfg.PLATFORM_OPERATOR_VAT }}</p>{% endif %}
+{% elif page == 'datenschutz' %}
+<h1>Datenschutzerklärung</h1>
+<div class="alert warn">VORLAGE – vor dem Livegang vollständig durch den Betreiber/Juristen ersetzen und prüfen lassen.</div>
+<h2>Verantwortlicher</h2><p>{{ cfg.PLATFORM_OPERATOR_NAME }}, {{ cfg.PLATFORM_OPERATOR_ADDRESS }}, {{ cfg.PLATFORM_OPERATOR_EMAIL }}</p>
+<h2>Verarbeitete Daten</h2><p>Registrierungsdaten (E-Mail, Agenturname), Nutzungs- und Protokolldaten, vom Kunden hinterlegte Inhalte. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertrag), lit. f (Sicherheit/Betrieb).</p>
+<h2>Auftragsverarbeitung</h2><p>Für die Daten der Endkunden der Reisebüros handelt der Betreiber als Auftragsverarbeiter (Art. 28 DSGVO), siehe AVV.</p>
+<h2>Cookies</h2><p>Es werden nur technisch notwendige Cookies (Sitzung, Spracheinstellung) verwendet.</p>
+<h2>Ihre Rechte</h2><p>Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerspruch und Beschwerde bei einer Aufsichtsbehörde.</p>
+{% elif page == 'agb' %}
+<h1>Allgemeine Geschäftsbedingungen</h1>
+<div class="alert warn">VORLAGE – durch eigene, juristisch geprüfte AGB ersetzen.</div>
+<p>Leistungsgegenstand, Preise, Laufzeit, Kündigung, Haftung und Pflichten des Kunden (insbesondere: Verantwortung für die Rechtmäßigkeit der Inhalte, eigene API-Schlüssel, Einhaltung der Reiserechtsvorschriften) sind hier zu regeln.</p>
+{% else %}
+<h1>Auftragsverarbeitungsvertrag (AVV)</h1>
+<div class="alert warn">VORLAGE – durch einen juristisch geprüften AVV nach Art. 28 DSGVO ersetzen.</div>
+<p>Gegenstand, Dauer, Art und Zweck der Verarbeitung, Kategorien betroffener Personen und Daten, technische und organisatorische Maßnahmen, Unterauftragsverarbeiter (z. B. Hosting-Anbieter; Anthropic und Stripe werden vom Reisebüro mit eigenen Konten genutzt) sowie Rechte und Pflichten der Parteien.</p>
+{% endif %}
+</div>
+{% endblock %}

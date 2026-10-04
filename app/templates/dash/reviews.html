@@ -1,0 +1,12 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import post_btn %}
+{% block title %}{{ t('Отзывы') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Отзывы') }}</h1></div>
+<p class="muted">{{ t('Только настоящие отзывы клиентов после поездки (ссылка — на странице брони). Выдуманные или купленные отзывы запрещены (UWG).') }}</p>
+<div class="card"><table><tr><th>{{ t('Автор') }}</th><th>{{ t('Оценка') }}</th><th>{{ t('Текст') }}</th><th></th></tr>
+{% for r in reviews %}<tr><td>{{ r.author_name }}</td><td>{{ '★' * r.rating }}</td><td>{{ r.text or '' }}</td><td class="row">
+{% if r.approved %}{{ post_btn(url_for('dash.review_action', review_id=r.id, action='hide'), 'Скрыть') }}{% else %}{{ post_btn(url_for('dash.review_action', review_id=r.id, action='approve'), 'Показать', 'btn small') }}{% endif %}
+{{ post_btn(url_for('dash.review_action', review_id=r.id, action='delete'), '✕', 'btn small danger', 'Удалить отзыв?') }}</td></tr>
+{% else %}<tr><td colspan="4" class="muted">{{ t('Отзывов пока нет.') }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

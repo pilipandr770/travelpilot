@@ -1,0 +1,33 @@
+/* Публичный сайт агентства; цвет бренда приходит из /theme.css */
+body.site{background:#fff}
+.sbar{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+.sbar .container{display:flex;align-items:center;justify-content:space-between;min-height:68px;gap:1rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.7rem;font-weight:800;color:var(--ink);font-size:1.15rem}.brand img{height:40px;width:auto}
+.snav{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap}.snav a{color:var(--ink);font-weight:500}
+.slang{display:flex;gap:.3rem}.slang a{font-size:.78rem;padding:.1em .45em;border-radius:6px;color:var(--muted)}.slang a.on{background:var(--brand);color:var(--on-brand)}
+.previewbar{background:#fff6e0;color:#7a5200;text-align:center;padding:.4rem 1rem;font-size:.9rem;border-bottom:1px solid #f3dba0}
+.shero{position:relative;color:#fff;background:linear-gradient(135deg,var(--brand),#0f1b33);padding:clamp(3.5rem,10vw,7rem) 0}
+.shero.img{background-size:cover;background-position:center}.shero::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(15,27,51,.78),rgba(15,27,51,.35))}
+.shero .container{position:relative}.shero h1{max-width:18ch;color:#fff}.shero p{font-size:1.2rem;max-width:40rem;opacity:.95}
+.shero .btn.secondary{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.4)}
+.ssec{padding:clamp(2.2rem,5vw,3.6rem) 0}.ssec.alt{background:var(--bg)}
+.offer{display:flex;flex-direction:column;gap:.5rem}.offer .price{font-size:1.5rem;font-weight:800;color:var(--brand)}.offer .meta{color:var(--muted);font-size:.88rem}
+.post{display:flex;flex-direction:column;gap:.4rem}.post h3 a{color:var(--ink)}
+.tag{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:.1em .7em;font-size:.78rem;margin:0 .3em .3em 0;color:var(--muted)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}.gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px}
+.stars{color:#f2a900;letter-spacing:.1em}
+.article{max-width:46rem;margin-inline:auto}.article h1{font-size:clamp(1.8rem,4vw,2.6rem)}
+.sfoot{background:#0f1b33;color:#cfd8ee;padding:2.2rem 0;margin-top:2rem;font-size:.92rem}.sfoot a{color:#fff}.sfoot .container{display:flex;flex-wrap:wrap;gap:1rem 2rem;justify-content:space-between}
+/* чат-виджет */
+.cw-btn{position:fixed;right:18px;bottom:18px;z-index:50;background:var(--brand);color:var(--on-brand);border:0;border-radius:999px;padding:.85em 1.3em;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.cw{position:fixed;right:18px;bottom:18px;z-index:60;width:min(380px,100vw - 24px);height:min(560px,100vh - 36px);background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 20px 60px rgba(15,27,51,.28);display:none;flex-direction:column;overflow:hidden}
+.cw.open{display:flex}.cw header{background:var(--brand);color:var(--on-brand);padding:.8rem 1rem;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+.cw header button{background:none;border:0;color:inherit;font-size:1.3rem;cursor:pointer}
+.cw .notice{font-size:.74rem;color:var(--muted);padding:.5rem .9rem;background:#f6f8fc;border-bottom:1px solid var(--line)}
+.cw .log{flex:1;overflow:auto;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;background:#fff}
+.cw .msg{max-width:88%;padding:.55rem .8rem;border-radius:14px;white-space:pre-wrap;word-wrap:break-word;font-size:.94rem}
+.cw .msg.u{align-self:flex-end;background:var(--brand);color:var(--on-brand);border-bottom-right-radius:4px}.cw .msg.a{align-self:flex-start;background:#eef2fb;border-bottom-left-radius:4px}
+.cw .cards{display:flex;flex-direction:column;gap:.4rem;align-self:flex-start;max-width:92%}.cw .ocard{border:1px solid var(--line);border-radius:12px;padding:.55rem .75rem;background:#fff;font-size:.88rem}.cw .ocard b{display:block}
+.cw form{display:flex;gap:.5rem;padding:.6rem;border-top:1px solid var(--line)}.cw form input{flex:1}
+.cw .typing{opacity:.6;font-style:italic}
+@media(max-width:520px){.cw{right:0;bottom:0;width:100vw;height:100vh;border-radius:0}}

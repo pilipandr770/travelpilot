@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, flashes %}
+{% block title %}Admin{% endblock %}
+{% block content %}<div class="container" style="padding:2rem 0">{{ flashes() }}<h1>Admin</h1>
+<div class="card"><table><tr><th>Agency</th><th>Owner</th><th>Status</th><th>Leads</th><th>Site</th><th>Created</th><th></th></tr>
+{% for a in agencies %}<tr><td><b>{{ a.name }}</b><br><span class="small muted">{{ a.slug }} · {{ a.legal_name or '—' }} · {{ a.vat_id or a.tax_number or '—' }}</span></td>
+<td>{{ owners[a.id].email if a.id in owners else '—' }}<br><span class="small muted">{{ 'confirmed' if a.id in owners and owners[a.id].email_confirmed_at else 'unconfirmed' }}</span></td>
+<td><span class="badge {{ 'ok' if a.status == 'active' else 'warn' if a.status == 'pending_review' else 'err' if a.status == 'suspended' else '' }}">{{ a.status }}</span></td><td>{{ stats[a.id] }}</td><td>{{ 'published' if a.site_published else '—' }}</td><td>{{ a.created_at.strftime('%d.%m.%Y') }}</td>
+<td><form method="post" action="{{ url_for('admin.set_status', agency_id=a.id) }}" class="row">{{ csrf() }}<select name="status" style="width:auto">{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if s == a.status }}>{{ s }}</option>{% endfor %}</select><button class="btn small">OK</button></form></td></tr>{% endfor %}</table></div>
+<h2 style="margin-top:2rem">Audit log</h2><div class="card"><table><tr><th>Time</th><th>Agency</th><th>User</th><th>Action</th><th>Detail</th><th>IP</th></tr>
+{% for e in log %}<tr><td>{{ e.created_at.strftime('%d.%m %H:%M') }}</td><td>{{ e.agency_id or '' }}</td><td>{{ e.user_id or '' }}</td><td>{{ e.action }}</td><td>{{ e.detail or '' }}</td><td>{{ e.ip or '' }}</td></tr>{% endfor %}</table></div></div>{% endblock %}

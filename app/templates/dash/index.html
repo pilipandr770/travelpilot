@@ -1,0 +1,34 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import post_btn %}
+{% block content %}
+<div class="head"><div><h1>{{ agency.name }}</h1>
+  <span class="badge {{ 'ok' if agency.status == 'active' else 'warn' }}">{{ agency.status }}</span>
+  {% if agency.site_published %}<span class="badge ok">{{ t('опубликован') }}</span>{% else %}<span class="badge">{{ t('не опубликован') }}</span>{% endif %}</div>
+  <div class="row"><a class="btn secondary small" href="{{ preview }}" target="_blank" rel="noopener">{{ t('Предпросмотр') }} ↗</a>
+  {% if agency.site_published %}<a class="btn secondary small" href="{{ agency.site_url('/') }}" target="_blank" rel="noopener">{{ agency.site_host() }} ↗</a>{% endif %}</div></div>
+
+{% if not email_confirmed %}<div class="alert warn">{{ t('Подтвердите e-mail (письмо со ссылкой отправлено при регистрации).') }} <form method="post" action="{{ url_for('dash.account') }}" style="display:inline"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="resend"><button class="btn small secondary">{{ t('Отправить ещё раз') }}</button></form></div>{% endif %}
+{% if agency.llm_last_error %}<div class="alert error">{{ t('Ошибка ИИ') }}: {{ agency.llm_last_error }} — <a href="{{ url_for('dash.integrations') }}">{{ t('Интеграции') }}</a></div>{% endif %}
+
+<div class="grid g3">
+  <div class="card"><div class="stat">{{ counts.get('pageview', 0) + counts.get('post_view', 0) }}</div><div class="muted small">{{ t('просмотров за 30 дней') }}</div></div>
+  <div class="card"><div class="stat">{{ counts.get('chat_start', 0) }}</div><div class="muted small">{{ t('чатов начато') }}</div></div>
+  <div class="card"><div class="stat">{{ counts.get('lead', 0) }}</div><div class="muted small">{{ t('заявок') }} · {{ new_leads }} {{ t('новых') }}</div></div>
+</div>
+
+<div class="grid g2" style="margin-top:1rem">
+  <div class="card"><h3>{{ t('Запуск сайта') }}</h3>
+    <ul class="checklist">{% for s in checklist %}<li class="{{ 'done' if s.done }}"><span class="dot">{{ '✓' if s.done }}</span><a href="{{ url_for(s.endpoint) }}">{{ t(s.label) }}</a></li>{% endfor %}</ul>
+  </div>
+  <div class="card"><h3>{{ t('Публикация') }}</h3>
+    {% if agency.status == 'sandbox' %}<p class="muted">{{ t('Сначала заполните юридические данные, затем запросите проверку: мы убедимся, что агентство настоящее.') }}</p>{{ post_btn(url_for('dash.request_review'), 'Запросить проверку', 'btn') }}
+    {% elif agency.status == 'pending_review' %}<p class="alert info">{{ t('Заявка на проверку отправлена. Обычно это занимает до 1 рабочего дня.') }}</p>
+    {% elif agency.status == 'active' %}
+      {% if agency.site_published %}<p class="alert success">{{ t('Сайт онлайн.') }}</p>{{ post_btn(url_for('dash.unpublish_site'), 'Снять с публикации', 'btn secondary', 'Снять сайт с публикации?') }}
+      {% else %}{{ post_btn(url_for('dash.publish_site'), 'Опубликовать сайт', 'btn') }}{% endif %}
+    {% else %}<p class="alert error">{{ t('Агентство заблокировано. Свяжитесь с поддержкой.') }}</p>{% endif %}
+    {% set missing = agency.legal_missing() %}
+    {% if missing %}<p class="small muted" style="margin-top:1rem">{{ t('Не хватает') }}: {{ missing|join(', ') }}</p>{% endif %}
+  </div>
+</div>
+{% endblock %}

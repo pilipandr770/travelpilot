@@ -1,0 +1,21 @@
+{% extends "dash/base.html" %}
+{% from "macros.html" import csrf, field, area, check, select %}
+{% block title %}{{ t('Чат-бот') }}{% endblock %}
+{% block content %}
+<div class="head"><h1>{{ t('Чат-бот') }}</h1><a class="btn secondary small" href="{{ preview }}" target="_blank" rel="noopener">{{ t('Проверить на сайте') }} ↗</a></div>
+{% if not has_key %}<div class="alert warn">{{ t('Для работы бота нужен ключ Anthropic.') }} <a href="{{ url_for('dash.integrations') }}">{{ t('Интеграции') }}</a></div>{% endif %}
+<div class="alert info small">{{ t('Жёсткие правила бота (представляться как ИИ, не выдумывать цены и отели, честная реклама, согласие на данные) заданы платформой и не отключаются. Ниже — только ваш стиль и дополнения.') }}</div>
+<form method="post" class="card">{{ csrf() }}
+  {{ check('bot_enabled', 'Бот включён', agency.bot_enabled) }}
+  <div class="grid g2">
+    {{ field('bot_name', 'Имя бота', agency.bot_name, maxlength=60) }}
+    {% set opts = [('', t('по умолчанию'))] %}{% for m in models %}{% set _ = opts.append((m, m)) %}{% endfor %}
+    {{ select('bot_model', 'Модель Claude', opts, agency.bot_model or '', 'Меньшая модель — дешевле.') }}
+  </div>
+  {{ field('bot_greeting', 'Приветствие', agency.bot_greeting, maxlength=400) }}
+  {{ field('bot_tone', 'Тон общения', agency.bot_tone, maxlength=300, placeholder='freundlich, kompetent, kurz') }}
+  {{ area('bot_rules', 'Ваши дополнительные правила', agency.bot_rules, 5, 'Например: «Не предлагать направления с предупреждением МИД», «Всегда уточнять аэропорт вылета».', 3000) }}
+  {{ area('bot_faq', 'FAQ / факты об агентстве', agency.bot_faq, 8, 'Часы работы, способы оплаты, как проходит бронирование. Бот будет опираться на этот текст.', 6000) }}
+  <button class="btn">{{ t('Сохранить') }}</button>
+</form>
+{% endblock %}
